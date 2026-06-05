@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest",
+    "format": "prettier --write \"src/**/*.{js,jsx,css}\""
+
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

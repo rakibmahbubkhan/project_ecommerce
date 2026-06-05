@@ -1,3 +1,16 @@
+<div align="center">
+
+# 🛍️ E-Commerce Platform
+
+[![GitHub stars](https://img.shields.io/github/stars/yourusername/ecommerce-platform)](https://github.com/yourusername/ecommerce-platform/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/yourusername/ecommerce-platform)](https://github.com/yourusername/ecommerce-platform/network)
+[![GitHub issues](https://img.shields.io/github/issues/yourusername/ecommerce-platform)](https://github.com/yourusername/ecommerce-platform/issues)
+[![GitHub license](https://img.shields.io/github/license/yourusername/ecommerce-platform)](https://github.com/yourusername/ecommerce-platform/blob/main/LICENSE)
+[![Node Version](https://img.shields.io/badge/node-24.x-green)](https://nodejs.org/)
+[![MySQL Version](https://img.shields.io/badge/mysql-5.7-blue)](https://mysql.com/)
+
+</div>
+
 # 🛍️ E-Commerce Platform
 
 A full-stack e-commerce platform built with React, NestJS, and MySQL.
