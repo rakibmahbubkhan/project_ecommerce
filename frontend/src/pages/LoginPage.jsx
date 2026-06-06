@@ -32,16 +32,23 @@ const LoginPage = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
+      console.log('Attempting login with:', values.email);
       const response = await api.post('/auth/login', values);
+      console.log('Login response:', response.data);
+      
       dispatch(setCredentials(response.data));
       toast.success('Login successful!');
       
+      // Check user role and redirect accordingly
       if (response.data.user.role === 'admin') {
+        console.log('Admin user, redirecting to /admin');
         navigate('/admin');
       } else {
+        console.log('Regular user, redirecting to /');
         navigate('/');
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.response?.data?.message || 'Login failed');
       toast.error('Login failed');
     } finally {

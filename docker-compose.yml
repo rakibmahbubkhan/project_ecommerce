@@ -7,9 +7,9 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: ecommerce_db
-      MYSQL_USER: ecommerce_user
-      MYSQL_PASSWORD: ecommerce_pass
+      MYSQL_DATABASE: project_ecommerce
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 123
     ports:
       - "3306:3306"
     volumes:

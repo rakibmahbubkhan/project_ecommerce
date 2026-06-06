@@ -32,8 +32,8 @@ const Footer = () => {
             <Typography variant="h6" gutterBottom>
               Contact
             </Typography>
-            <Typography variant="body2">Email: support@ecommerce.com</Typography>
-            <Typography variant="body2">Phone: +1 234 567 890</Typography>
+            <Typography variant="body2">Email: rak.mbk@gmail.com</Typography>
+            <Typography variant="body2">Phone: +88 01791-504103</Typography>
           </Grid>
         </Grid>
         <Typography variant="body2" align="center" sx={{ mt: 3 }}>
