@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import {
   Container,
@@ -39,16 +39,19 @@ const LoginPage = () => {
       dispatch(setCredentials(response.data));
       toast.success('Login successful!');
       
-      // Check user role and redirect accordingly
-      if (response.data.user.role === 'admin') {
-        console.log('Admin user, redirecting to /admin');
+      // Check user role and redirect
+      const userRole = response.data.user?.role;
+      console.log('User role:', userRole);
+      
+      if (userRole === 'admin') {
+        console.log('Redirecting to admin dashboard');
         navigate('/admin');
       } else {
-        console.log('Regular user, redirecting to /');
+        console.log('Redirecting to home page');
         navigate('/');
       }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('Login error:', err.response?.data);
       setError(err.response?.data?.message || 'Login failed');
       toast.error('Login failed');
     } finally {

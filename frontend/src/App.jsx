@@ -21,7 +21,7 @@ import OrdersPage from './pages/OrdersPage';
 const PrivateRoute = ({ children, adminOnly = false }) => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   
-  console.log('PrivateRoute check:', { isAuthenticated, user, adminOnly });
+  console.log('PrivateRoute check:', { isAuthenticated, user, adminOnly }); // Debug log
   
   if (!isAuthenticated) {
     console.log('Not authenticated, redirecting to login');
@@ -33,14 +33,11 @@ const PrivateRoute = ({ children, adminOnly = false }) => {
     return <Navigate to="/" />;
   }
   
+  console.log('Access granted');
   return children;
 };
 
 function App() {
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
-  
-  console.log('App state:', { isAuthenticated, user });
-
   return (
     <Routes>
       {/* Public Routes with Layout */}
@@ -70,7 +67,7 @@ function App() {
         } />
       </Route>
       
-      {/* Admin Routes - Separate layout without the public Layout */}
+      {/* Admin Routes with AdminLayout */}
       <Route path="/admin" element={
         <PrivateRoute adminOnly>
           <AdminLayout />
@@ -82,9 +79,6 @@ function App() {
         <Route path="orders" element={<AdminOrders />} />
         <Route path="users" element={<AdminUsers />} />
       </Route>
-      
-      {/* Catch all - redirect to home */}
-      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }

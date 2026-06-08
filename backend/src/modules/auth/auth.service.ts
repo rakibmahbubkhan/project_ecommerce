@@ -29,6 +29,7 @@ export class AuthService {
     const user = this.userRepository.create({
       ...registerDto,
       password: hashedPassword,
+      role: 'customer', // Default role
     });
 
     await this.userRepository.save(user);
@@ -36,6 +37,7 @@ export class AuthService {
     const token = this.generateToken(user);
     
     const { password, ...result } = user;
+    console.log('User registered:', result); // Debug log
     return { user: result, token };
   }
 
@@ -43,6 +45,9 @@ export class AuthService {
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
     });
+
+    console.log('Login attempt for:', loginDto.email); // Debug log
+    console.log('User found:', user ? 'Yes' : 'No'); // Debug log
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -57,6 +62,8 @@ export class AuthService {
     const token = this.generateToken(user);
     
     const { password, ...result } = user;
+    console.log('User logged in:', result); // Debug log
+    console.log('User role:', result.role); // Debug log
     return { user: result, token };
   }
 
@@ -66,6 +73,7 @@ export class AuthService {
       email: user.email, 
       role: user.role 
     };
+    console.log('Generating token for role:', user.role); // Debug log
     return this.jwtService.sign(payload);
   }
 }
