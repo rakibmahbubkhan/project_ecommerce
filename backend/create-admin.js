@@ -16,26 +16,26 @@ async function createAdminUser() {
     // Check if admin already exists
     const [existing] = await connection.execute(
       'SELECT * FROM users WHERE email = ?',
-      ['rakibmahbubkhan@gmail.com']
+      ['admin@ecommerce.com']
     );
     
     if (existing.length > 0) {
       console.log('Admin user already exists, updating password...');
       await connection.execute(
         'UPDATE users SET password = ?, role = ? WHERE email = ?',
-        [hashedPassword, 'admin', 'rakibmahbubkhan@gmail.com']
+        [hashedPassword, 'admin', 'admin@ecommerce.com']
       );
     } else {
       // Insert admin user
       await connection.execute(
         `INSERT INTO users (email, password, first_name, last_name, role, is_active) 
          VALUES (?, ?, ?, ?, ?, ?)`,
-        ['rakibmahbubkhan@gmail.com', hashedPassword, 'Admin', 'User', 'admin', true]
+        ['admin@ecommerce.com', hashedPassword, 'Admin', 'User', 'admin', true]
       );
     }
     
     console.log('✅ Admin user created successfully!');
-    console.log('Email: rakibmahbubkhan@gmail.com');
+    console.log('Email: admin@ecommerce.com');
     console.log('Password: Admin@123');
     
   } catch (error) {
