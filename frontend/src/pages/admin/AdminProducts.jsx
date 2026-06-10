@@ -24,12 +24,17 @@ import {
   Alert,
   MenuItem,
   InputAdornment,
+  ImageList,
+  ImageListItem,
+  ImageListItemBar,
 } from '@mui/material';
 import {
   Edit,
   Delete,
   Add,
   Visibility,
+  CloudUpload,
+  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -40,6 +45,8 @@ const AdminProducts = () => {
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -80,11 +87,12 @@ const AdminProducts = () => {
   };
 
   const handleOpenDialog = (product = null) => {
+    setSelectedFile(null);
     if (product) {
       setEditingProduct(product);
       setFormData({
         name: product.name,
-        description: product.description,
+        description: product.description || '',
         price: product.price,
         comparePrice: product.comparePrice || '',
         sku: product.sku,
@@ -115,6 +123,7 @@ const AdminProducts = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditingProduct(null);
+    setSelectedFile(null);
   };
 
   const handleChange = (e) => {
@@ -124,15 +133,96 @@ const AdminProducts = () => {
     });
   };
 
+  const handleImageUrlsChange = (e) => {
+    const urls = e.target.value.split(',').map(url => url.trim()).filter(url => url !== '');
+    setFormData({
+      ...formData,
+      imageUrls: urls
+    });
+  };
+
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size should be less than 5MB');
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
+  const uploadImage = async () => {
+    if (!selectedFile) return null;
+    
+    setUploadingImage(true);
+    try {
+      const fileData = new FormData();
+      fileData.append('file', selectedFile);
+
+      const uploadRes = await api.post('/products/upload', fileData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      toast.success('Image uploaded successfully');
+      return uploadRes.data.url;
+    } catch (error) {
+      toast.error('Failed to upload image');
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = (indexToRemove) => {
+    setFormData({
+      ...formData,
+      imageUrls: formData.imageUrls.filter((_, index) => index !== indexToRemove)
+    });
+  };
+
   const handleSubmit = async () => {
     try {
+      let currentImages = [...formData.imageUrls];
+
+      // Upload selected file if exists
+      if (selectedFile) {
+        const uploadedImageUrl = await uploadImage();
+        if (uploadedImageUrl) {
+          currentImages.push(uploadedImageUrl);
+        } else {
+          return; // Stop submission if upload failed
+        }
+      }
+
+      // Prepare payload with proper data types
+      const payload = {
+        name: formData.name,
+        description: formData.description,
+        price: formData.price !== '' ? Number(formData.price) : undefined,
+        comparePrice: formData.comparePrice !== '' ? Number(formData.comparePrice) : undefined,
+        sku: formData.sku,
+        stockQuantity: formData.stockQuantity !== '' ? Number(formData.stockQuantity) : undefined,
+        categoryId: formData.categoryId !== '' ? Number(formData.categoryId) : undefined,
+        isActive: formData.isActive,
+        isFeatured: formData.isFeatured,
+        imageUrls: currentImages,
+      };
+
       if (editingProduct) {
-        await api.patch(`/products/${editingProduct.id}`, formData);
+        await api.patch(`/products/${editingProduct.id}`, payload);
         toast.success('Product updated successfully');
       } else {
-        await api.post('/products', formData);
+        await api.post('/products', payload);
         toast.success('Product created successfully');
       }
+      
       fetchProducts();
       handleCloseDialog();
     } catch (error) {
@@ -176,20 +266,60 @@ const AdminProducts = () => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>SKU</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell>Stock</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Image</TableCell> {/* <-- Add this header */}
+                <TableCell>Name</TableCell>
+                <TableCell>SKU</TableCell>
+                <TableCell>Price</TableCell>
+                <TableCell>Stock</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
           <TableBody>
-            {products.map((product) => (
+                      {products.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>{product.id}</TableCell>
+                
+                {/* Add this TableCell to display the product image */}
+                <TableCell>
+                  {product.imageUrls && product.imageUrls.length > 0 ? (
+                    <Box
+                      component="img"
+                      src={
+                        product.imageUrls[0].startsWith('http')
+                          ? product.imageUrls[0]
+                          : `${'http://localhost:3001'}${product.imageUrls[0]}`
+                      }
+                      alt={product.name}
+                      sx={{
+                        width: 50,
+                        height: 50,
+                        objectFit: 'cover',
+                        borderRadius: 1,
+                        border: '1px solid #e0e0e0'
+                      }}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        width: 50,
+                        height: 50,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#f5f5f5',
+                        borderRadius: 1,
+                        fontSize: '10px',
+                        color: '#9e9e9e',
+                        border: '1px dashed #ccc'
+                      }}
+                    >
+                      No Img
+                    </Box>
+                  )}
+                </TableCell>
                 <TableCell>{product.name}</TableCell>
                 <TableCell>{product.sku}</TableCell>
                 <TableCell>${product.price}</TableCell>
@@ -235,6 +365,7 @@ const AdminProducts = () => {
                 required
               />
             </Grid>
+            
             <Grid item xs={12}>
               <TextField
                 fullWidth
@@ -246,6 +377,7 @@ const AdminProducts = () => {
                 onChange={handleChange}
               />
             </Grid>
+            
             <Grid item xs={6}>
               <TextField
                 fullWidth
@@ -258,6 +390,7 @@ const AdminProducts = () => {
                 required
               />
             </Grid>
+            
             <Grid item xs={6}>
               <TextField
                 fullWidth
@@ -269,6 +402,7 @@ const AdminProducts = () => {
                 onChange={handleChange}
               />
             </Grid>
+            
             <Grid item xs={6}>
               <TextField
                 fullWidth
@@ -279,6 +413,7 @@ const AdminProducts = () => {
                 required
               />
             </Grid>
+            
             <Grid item xs={6}>
               <TextField
                 fullWidth
@@ -290,6 +425,7 @@ const AdminProducts = () => {
                 required
               />
             </Grid>
+            
             <Grid item xs={12}>
               <TextField
                 fullWidth
@@ -307,6 +443,84 @@ const AdminProducts = () => {
                 ))}
               </TextField>
             </Grid>
+
+            {/* Image Upload Section */}
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom>
+                Product Images
+              </Typography>
+              
+              {/* File upload button */}
+              <Button
+                variant="outlined"
+                component="label"
+                fullWidth
+                startIcon={<CloudUpload />}
+                disabled={uploadingImage}
+              >
+                {uploadingImage ? 'Uploading...' : 'Upload Image from Computer'}
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                />
+              </Button>
+              
+              {selectedFile && (
+                <Alert severity="info" sx={{ mt: 1 }}>
+                  Ready to upload: {selectedFile.name}
+                </Alert>
+              )}
+
+              {/* Image URLs input */}
+              <TextField
+                fullWidth
+                label="Image URLs (Comma-separated)"
+                placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+                value={formData.imageUrls.join(', ')}
+                onChange={handleImageUrlsChange}
+                helperText="Enter image URLs separated by commas"
+                sx={{ mt: 2 }}
+              />
+
+              {/* Image preview grid */}
+              {formData.imageUrls.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Image Previews:
+                  </Typography>
+                  <ImageList sx={{ width: '100%', height: 'auto' }} cols={3} rowHeight={120}>
+                    {formData.imageUrls.map((url, index) => (
+                      <ImageListItem key={index} sx={{ position: 'relative' }}>
+                        <img
+                          src={url}
+                          alt={`Product ${index + 1}`}
+                          loading="lazy"
+                          style={{ height: 120, objectFit: 'cover' }}
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/120?text=Invalid+URL';
+                          }}
+                        />
+                        <ImageListItemBar
+                          position="top"
+                          actionIcon={
+                            <IconButton
+                              sx={{ color: 'white', bgcolor: 'rgba(0,0,0,0.5)' }}
+                              onClick={() => handleRemoveImage(index)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          }
+                          actionPosition="right"
+                        />
+                      </ImageListItem>
+                    ))}
+                  </ImageList>
+                </Box>
+              )}
+            </Grid>
+            
             <Grid item xs={6}>
               <FormControlLabel
                 control={
@@ -318,6 +532,7 @@ const AdminProducts = () => {
                 label="Active"
               />
             </Grid>
+            
             <Grid item xs={6}>
               <FormControlLabel
                 control={
@@ -333,7 +548,12 @@ const AdminProducts = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" color="primary">
+          <Button 
+            onClick={handleSubmit} 
+            variant="contained" 
+            color="primary"
+            disabled={uploadingImage}
+          >
             {editingProduct ? 'Update' : 'Create'}
           </Button>
         </DialogActions>

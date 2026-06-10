@@ -83,9 +83,15 @@ const ProductsPage = () => {
                   <CardMedia
                     component="img"
                     height="200"
-                    image={product.imageUrls?.[0] || 'https://via.placeholder.com/300'}
+                    image={
+                      product.imageUrls && product.imageUrls.length > 0
+                        ? product.imageUrls[0].startsWith('http')
+                          ? product.imageUrls[0]
+                          : `http://localhost:3001${product.imageUrls[0]}`
+                        : 'https://via.placeholder.com/300'
+                    }
                     alt={product.name}
-                    sx={{ cursor: 'pointer' }}
+                    sx={{ cursor: 'pointer', objectFit: 'cover' }}
                     onClick={() => navigate(`/product/${product.slug}`)}
                   />
                   <CardContent sx={{ flexGrow: 1 }}>
