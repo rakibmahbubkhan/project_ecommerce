@@ -2,15 +2,20 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
-import { Container, Box } from '@mui/material';
+import { Box } from '@mui/material';
 
 const Layout = ({ children }) => {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      minHeight: '100vh',
+      bgcolor: '#f5f7fa',
+    }}>
       <Navbar />
-      <Container component="main" sx={{ flex: 1, py: 3 }}>
+      <Box component="main" sx={{ flex: 1 }}>
         {children || <Outlet />}
-      </Container>
+      </Box>
       <Footer />
     </Box>
   );

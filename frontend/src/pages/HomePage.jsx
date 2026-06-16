@@ -11,88 +11,237 @@ import {
   Button,
   Box,
   CircularProgress,
-  AppBar,
-  Toolbar,
-  IconButton,
-  TextField,
-  InputAdornment,
-  Zoom,
-  useScrollTrigger,
-  Slide,
-  Chip,
-  Avatar,
   Divider,
   Rating,
-  Stack,
+  Chip,
   Paper,
+  Stack,
+  Avatar,
+  IconButton,
+  Fade,
+  useTheme,
 } from '@mui/material';
 import {
-  ShoppingCart,
-  Search,
   LocalShipping,
-  Security,
+  VerifiedUser,
+  CurrencyExchange,
   SupportAgent,
-  TrendingUp,
   ArrowForward,
-  Facebook,
-  Twitter,
-  Instagram,
-  LinkedIn,
-  KeyboardArrowUp,
-  Phone,
-  Email,
-  LocationOn,
+  PlayCircle,
+  Bolt,
+  Lightbulb,
+  ElectricalServices,
+  Security,
+  HomeRepairService,
+  FlashOn,
+  BatteryChargingFull,
+  Settings,
+  Build,
+  TrendingUp,
+  EmojiEvents,
+  Shield,
+  Speed,
 } from '@mui/icons-material';
-import { motion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
-// Import Slider correctly from react-slick
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+// ============================================
+// UNIVERSAL ELECTRIC SHOP CONTENT CONFIGURATION
+// Edit this object to customize all content
+// ============================================
+const CONTENT = {
+  // Brand Information
+  brand: {
+    name: 'ElectroHub',
+    tagline: 'Your Trusted Partner for Quality Electrical Solutions',
+  },
 
-// Scroll to top button component
-function ScrollTop() {
-  const trigger = useScrollTrigger({
-    disableHysteresis: true,
-    threshold: 100,
-  });
+  // Hero Section
+  hero: {
+    title: 'Premium Electrical & Electronic Solutions',
+    subtitle: 'Discover our extensive range of high-quality electrical products, from smart home devices to industrial-grade equipment. Engineered for safety, efficiency, and reliability.',
+    ctaText: 'Explore Products',
+    ctaLink: '/products',
+    image: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&h=400&fit=crop&crop=center',
+    gradient: 'linear-gradient(135deg, #0a1628 0%, #1a365d 50%, #2a4a7f 100%)',
+    accentColor: '#FF6B35',
+    secondaryColor: '#00D4FF',
+  },
 
-  const handleClick = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  // Stats Section
+  stats: [
+    { value: '10K+', label: 'Happy Customers', icon: <EmojiEvents />, color: '#FFD700' },
+    { value: '500+', label: 'Products Available', icon: <ElectricalServices />, color: '#00D4FF' },
+    { value: '98%', label: 'Satisfaction Rate', icon: <TrendingUp />, color: '#00E676' },
+    { value: '24/7', label: 'Expert Support', icon: <SupportAgent />, color: '#FF6B35' },
+  ],
 
-  return (
-    <Zoom in={trigger}>
-      <Box
-        onClick={handleClick}
-        role="presentation"
-        sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1000 }}
-      >
-        <IconButton color="primary" sx={{ bgcolor: 'background.paper', boxShadow: 3 }}>
-          <KeyboardArrowUp />
-        </IconButton>
-      </Box>
-    </Zoom>
-  );
-}
+  // Trust Signals / Value Propositions
+  trustSignals: [
+    { icon: <LocalShipping />, label: 'Fast Delivery', color: '#FF6B35' },
+    { icon: <VerifiedUser />, label: 'Certified Products', color: '#00D4FF' },
+    { icon: <Security />, label: 'Safety Guaranteed', color: '#FFD700' },
+    { icon: <SupportAgent />, label: '24/7 Support', color: '#00E676' },
+  ],
 
-// Hide on scroll navbar
-function HideOnScroll({ children }) {
-  const trigger = useScrollTrigger();
-  return (
-    <Slide appear={false} direction="down" in={!trigger}>
-      {children}
-    </Slide>
-  );
-}
+  // Categories Section
+  categories: {
+    title: 'Shop by Category',
+    subtitle: 'Find exactly what you need for your electrical projects',
+    items: [
+      {
+        name: 'Smart Home',
+        icon: <HomeRepairService />,
+        image: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=400&h=300&fit=crop&crop=center',
+        items: 245,
+        color: '#FF6B35',
+      },
+      {
+        name: 'Lighting',
+        icon: <Lightbulb />,
+        image: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=400&h=300&fit=crop&crop=center',
+        items: 189,
+        color: '#FFD700',
+      },
+      {
+        name: 'Wiring & Cables',
+        icon: <ElectricalServices />,
+        image: 'https://images.unsplash.com/photo-1562408590-e32931084e23?w=400&h=300&fit=crop&crop=center',
+        items: 156,
+        color: '#00D4FF',
+      },
+      {
+        name: 'Power Tools',
+        icon: <Build />,
+        image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=300&fit=crop&crop=center',
+        items: 198,
+        color: '#FF6B35',
+      },
+      {
+        name: 'Batteries & Power',
+        icon: <BatteryChargingFull />,
+        image: 'https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=400&h=300&fit=crop&crop=center',
+        items: 134,
+        color: '#00E676',
+      },
+      {
+        name: 'Electrical Panels',
+        icon: <Settings />,
+        image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=400&h=300&fit=crop&crop=center',
+        items: 89,
+        color: '#00D4FF',
+      },
+    ],
+  },
+
+  // Featured Products Section
+  featuredProducts: {
+    title: 'Featured Electrical Products',
+    subtitle: 'Top-rated equipment and devices for every application',
+    viewAllText: 'View All Products',
+    limit: 8,
+    defaultCategory: 'Electrical Equipment',
+    placeholderImage: 'https://via.placeholder.com/300x300?text=Electrical+Product',
+    badgeLabel: 'Best Seller',
+    addToCartText: 'Add to Cart',
+    outOfStockText: 'Out of Stock',
+    rating: 4.8,
+  },
+
+  // Why Choose Us Section
+  whyChooseUs: {
+    title: 'Why Choose ElectroHub?',
+    subtitle: 'Your trusted source for electrical excellence',
+    features: [
+      {
+        icon: <Shield />,
+        title: 'Certified Quality',
+        description: 'All products meet international safety and quality standards with full certification.',
+        color: '#00D4FF',
+      },
+      {
+        icon: <Speed />,
+        title: 'Fast & Reliable Delivery',
+        description: 'Quick shipping with real-time tracking and secure packaging for all orders.',
+        color: '#FF6B35',
+      },
+      {
+        icon: <SupportAgent />,
+        title: 'Expert Support',
+        description: 'Our technical team provides professional guidance for your electrical needs.',
+        color: '#FFD700',
+      },
+      {
+        icon: <Security />,
+        title: 'Warranty Guarantee',
+        description: 'Extended warranty coverage on all products for your peace of mind.',
+        color: '#00E676',
+      },
+    ],
+  },
+
+  // Testimonials Section
+  testimonials: {
+    title: 'What Our Customers Say',
+    subtitle: 'Trusted by professionals and homeowners alike',
+    items: [
+      {
+        name: 'John Smith',
+        location: 'Electrical Engineer',
+        rating: 5,
+        comment: 'Exceptional quality products and outstanding customer service. ElectroHub is my go-to for all electrical supplies.',
+        avatar: 'https://i.pravatar.cc/150?img=1',
+        badge: 'Verified Professional',
+      },
+      {
+        name: 'Sarah Johnson',
+        location: 'Homeowner',
+        rating: 5,
+        comment: 'I renovated my entire home with products from ElectroHub. The smart lighting system is incredible!',
+        avatar: 'https://i.pravatar.cc/150?img=2',
+        badge: 'Happy Customer',
+      },
+      {
+        name: 'Mike Chen',
+        location: 'Project Manager',
+        rating: 5,
+        comment: 'Reliable products, competitive pricing, and excellent technical support. Highly recommended for any project.',
+        avatar: 'https://i.pravatar.cc/150?img=3',
+        badge: 'Verified Professional',
+      },
+    ],
+  },
+
+  // Call to Action Section
+  cta: {
+    title: 'Ready to Power Your Project?',
+    subtitle: 'Browse our complete range of electrical products and get expert advice',
+    buttonText: 'Shop Now',
+    buttonLink: '/products',
+    gradient: 'linear-gradient(135deg, #0a1628 0%, #1a365d 50%, #2a4a7f 100%)',
+  },
+};
 
 const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const theme = useTheme();
+
+  // Refs for scroll animations
+  const statsRef = useRef(null);
+  const categoriesRef = useRef(null);
+  const productsRef = useRef(null);
+  const featuresRef = useRef(null);
+  const testimonialsRef = useRef(null);
+
+  const statsInView = useInView(statsRef, { once: true, amount: 0.2 });
+  const categoriesInView = useInView(categoriesRef, { once: true, amount: 0.2 });
+  const productsInView = useInView(productsRef, { once: true, amount: 0.2 });
+  const featuresInView = useInView(featuresRef, { once: true, amount: 0.2 });
+  const testimonialsInView = useInView(testimonialsRef, { once: true, amount: 0.2 });
 
   useEffect(() => {
     fetchFeaturedProducts();
@@ -101,9 +250,9 @@ const HomePage = () => {
   const fetchFeaturedProducts = async () => {
     try {
       const response = await api.get('/products', {
-        params: { page: 1, limit: 8 },
+        params: { page: 1, limit: CONTENT.featuredProducts.limit },
       });
-      setFeaturedProducts(response.data.products);
+      setFeaturedProducts(response.data.products || []);
     } catch (error) {
       toast.error('Failed to fetch products');
     } finally {
@@ -126,268 +275,436 @@ const HomePage = () => {
     }
   };
 
-  // Hero section data
-  const heroSlides = [
-    {
-      title: 'Summer Sale Extravaganza',
-      subtitle: 'Up to 50% off on selected items',
-      bgColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      ctaText: 'Shop Now',
-      ctaLink: '/products',
-    },
-    {
-      title: 'New Arrivals',
-      subtitle: 'Discover the latest trends',
-      bgColor: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-      ctaText: 'Explore',
-      ctaLink: '/products',
-    },
-    {
-      title: 'Free Shipping',
-      subtitle: 'On orders over $50',
-      bgColor: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-      ctaText: 'Learn More',
-      ctaLink: '/shipping',
-    },
-  ];
-
-  const features = [
-    {
-      icon: <LocalShipping sx={{ fontSize: 40 }} />,
-      title: 'Free Shipping',
-      description: 'Free shipping on orders over $50',
-      color: '#667eea',
-    },
-    {
-      icon: <Security sx={{ fontSize: 40 }} />,
-      title: 'Secure Payment',
-      description: '100% secure payment processing',
-      color: '#f093fb',
-    },
-    {
-      icon: <SupportAgent sx={{ fontSize: 40 }} />,
-      title: '24/7 Support',
-      description: 'Dedicated customer support',
-      color: '#4facfe',
-    },
-    {
-      icon: <TrendingUp sx={{ fontSize: 40 }} />,
-      title: 'Best Prices',
-      description: 'Price match guarantee',
-      color: '#43e97b',
-    },
-  ];
-
-  const categories = [
-    { name: 'Electronics', image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661', items: 245 },
-    { name: 'Fashion', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050', items: 189 },
-    { name: 'Home & Living', image: 'https://images.unsplash.com/photo-1484101403633-562f891dc89a', items: 156 },
-    { name: 'Sports', image: 'https://images.unsplash.com/photo-1461896836934-ffe807baa262', items: 98 },
-  ];
-
-  const testimonials = [
-    {
-      name: 'John Doe',
-      role: 'Regular Customer',
-      rating: 5,
-      comment: 'Amazing products! The quality is outstanding and shipping was super fast.',
-      avatar: 'https://i.pravatar.cc/150?img=1',
-    },
-    {
-      name: 'Jane Smith',
-      role: 'Business Owner',
-      rating: 5,
-      comment: 'Best online shopping experience. Great customer service and hassle-free returns.',
-      avatar: 'https://i.pravatar.cc/150?img=2',
-    },
-    {
-      name: 'Mike Johnson',
-      role: 'Tech Enthusiast',
-      rating: 4,
-      comment: 'Great selection of products at competitive prices. Will definitely shop again.',
-      avatar: 'https://i.pravatar.cc/150?img=3',
-    },
-  ];
-
-  const heroSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 5000,
-    arrows: true,
+  const getProductImage = (imageUrls) => {
+    if (imageUrls && imageUrls.length > 0) {
+      const url = imageUrls[0];
+      if (url.startsWith('http')) {
+        return url;
+      }
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      return `${baseUrl}${url}`;
+    }
+    return CONTENT.featuredProducts.placeholderImage;
   };
 
-  const productSettings = {
-    dots: false,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 4,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    arrows: true,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 3,
-        },
+  const getCategoryName = (category) => {
+    if (!category) return CONTENT.featuredProducts.defaultCategory;
+    if (typeof category === 'string') return category;
+    if (typeof category === 'object' && category.name) return category.name;
+    return CONTENT.featuredProducts.defaultCategory;
+  };
+
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  const fadeInScale = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { opacity: 1, scale: 1 },
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
       },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 2,
-        },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 1,
-        },
-      },
-    ],
+    },
   };
 
   return (
-    <>
-      <HideOnScroll>
-        <AppBar position="sticky" color="default" elevation={1} sx={{ bgcolor: 'white' }}>
-          <Toolbar>
-            <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold', cursor: 'pointer' }} onClick={() => navigate('/')}>
-              ShopHub
-            </Typography>
-            <TextField
-              size="small"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && navigate(`/products?search=${searchQuery}`)}
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search />
-                    </InputAdornment>
-                  ),
-                },
-              }}
-              sx={{ width: 300, mr: 2, display: { xs: 'none', md: 'flex' } }}
-            />
-            <Button color="primary" onClick={() => navigate('/products')}>
-              Shop
-            </Button>
-            <Button color="primary" onClick={() => navigate('/cart')}>
-              Cart
-            </Button>
-          </Toolbar>
-        </AppBar>
-      </HideOnScroll>
-
-      {/* Hero Carousel - Using div wrapper to ensure Slider renders correctly */}
-      <Box sx={{ overflow: 'hidden' }}>
-          {heroSlides.map((slide, index) => (
-            <Box
-              key={index}
-              sx={{
-                background: slide.bgColor,
-                minHeight: '80vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textAlign: 'center',
-                color: 'white',
-              }}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-              >
-                <Typography variant="h1" gutterBottom sx={{ fontWeight: 'bold', fontSize: { xs: '2rem', md: '4rem' } }}>
-                  {slide.title}
-                </Typography>
-                <Typography variant="h5" gutterBottom sx={{ mb: 4 }}>
-                  {slide.subtitle}
-                </Typography>
-                <Button
-                  variant="contained"
-                  size="large"
-                  endIcon={<ArrowForward />}
-                  onClick={() => navigate(slide.ctaLink)}
-                  sx={{
-                    bgcolor: 'white',
-                    color: 'primary.main',
-                    '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' },
-                  }}
-                >
-                  {slide.ctaText}
-                </Button>
-              </motion.div>
-            </Box>
-          ))}
-      </Box>
-
-      <Container maxWidth="lg" sx={{ mt: -8, mb: 8 }}>
-        {/* Features Section */}
-        <Grid container spacing={3} sx={{ mb: 8 }}>
-          {features.map((feature, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+    <Box sx={{ overflowX: 'hidden' }}>
+      
+      {/* ===== HERO SECTION ===== */}
+      <Box
+        sx={{
+          background: CONTENT.hero.gradient,
+          color: 'white',
+          pt: { xs: 8, md: 12 },
+          pb: { xs: 10, md: 14 },
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <Container maxWidth="lg">
+          <Grid container spacing={4} sx={{ alignItems: 'center' }}>
+            <Grid item xs={12} md={6}>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ duration: 0.8 }}
               >
-                <Paper
-                  elevation={3}
+                {/* Icon Badge */}
+                <Chip
+                  icon={<Bolt sx={{ color: CONTENT.hero.accentColor }} />}
+                  label="Premium Electrical Solutions"
                   sx={{
-                    p: 3,
-                    textAlign: 'center',
-                    borderRadius: 4,
-                    transition: 'transform 0.3s',
-                    '&:hover': { transform: 'translateY(-5px)' },
+                    backgroundColor: 'rgba(255,255,255,0.08)',
+                    color: 'white',
+                    mb: 3,
+                    border: `1px solid ${CONTENT.hero.accentColor}`,
+                    backdropFilter: 'blur(10px)',
+                    '& .MuiChip-icon': { color: CONTENT.hero.accentColor },
+                  }}
+                />
+                
+                <Typography
+                  variant="h1"
+                  component="h1"
+                  sx={{
+                    fontWeight: 800,
+                    fontSize: { xs: '2.2rem', md: '3.5rem' },
+                    lineHeight: 1.2,
+                    mb: 2,
+                    letterSpacing: '-0.02em',
                   }}
                 >
-                  <Box sx={{ color: feature.color, mb: 2 }}>{feature.icon}</Box>
-                  <Typography variant="h6" gutterBottom fontWeight="bold">
-                    {feature.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {feature.description}
-                  </Typography>
-                </Paper>
+                  {CONTENT.hero.title}
+                </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    mb: 4,
+                    opacity: 0.9,
+                    fontWeight: 400,
+                    maxWidth: '550px',
+                    fontSize: { xs: '1rem', md: '1.2rem' },
+                  }}
+                >
+                  {CONTENT.hero.subtitle}
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    endIcon={<ArrowForward />}
+                    onClick={() => navigate(CONTENT.hero.ctaLink)}
+                    sx={{
+                      backgroundColor: CONTENT.hero.accentColor,
+                      color: 'white',
+                      '&:hover': { backgroundColor: '#e55a2a' },
+                      px: 5,
+                      py: 1.8,
+                      fontWeight: 'bold',
+                      fontSize: '1rem',
+                      borderRadius: '50px',
+                      boxShadow: `0 8px 24px ${CONTENT.hero.accentColor}4D`,
+                    }}
+                  >
+                    {CONTENT.hero.ctaText}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<FlashOn />}
+                    sx={{
+                      borderColor: 'rgba(255,255,255,0.3)',
+                      color: 'white',
+                      '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.05)' },
+                      px: 4,
+                      py: 1.8,
+                      fontWeight: 'bold',
+                      borderRadius: '50px',
+                    }}
+                    onClick={() => navigate('/products?category=new-arrivals')}
+                  >
+                    New Arrivals
+                  </Button>
+                </Box>
               </motion.div>
             </Grid>
-          ))}
-        </Grid>
+            
+            <Grid item xs={12} md={6} sx={{ display: { xs: 'none', md: 'block' } }}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+              >
+                <Box
+                  sx={{
+                    position: 'relative',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      inset: -10,
+                      borderRadius: '24px',
+                      background: `linear-gradient(135deg, ${CONTENT.hero.accentColor}, ${CONTENT.hero.secondaryColor})`,
+                      opacity: 0.3,
+                      filter: 'blur(20px)',
+                    },
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={CONTENT.hero.image}
+                    alt={CONTENT.brand.name}
+                    sx={{
+                      width: '100%',
+                      maxHeight: '450px',
+                      objectFit: 'cover',
+                      borderRadius: '20px',
+                      boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                      position: 'relative',
+                      zIndex: 1,
+                    }}
+                  />
+                </Box>
+                {/* Floating badge */}
+                <motion.div
+                  initial={{ opacity: 0, x: 30, y: -30 }}
+                  animate={{ opacity: 1, x: 0, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
+                >
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      bottom: 30,
+                      right: -10,
+                      backgroundColor: CONTENT.hero.accentColor,
+                      color: 'white',
+                      p: 2.5,
+                      borderRadius: '16px',
+                      boxShadow: `0 10px 30px ${CONTENT.hero.accentColor}66`,
+                      zIndex: 2,
+                    }}
+                  >
+                    <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                      ⚡ 30% OFF
+                    </Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                      on new arrivals
+                    </Typography>
+                  </Box>
+                </motion.div>
+              </motion.div>
+            </Grid>
+          </Grid>
+        </Container>
 
-        {/* Categories Section */}
-        <Box sx={{ mb: 8 }}>
-          <Typography variant="h3" align="center" gutterBottom fontWeight="bold" sx={{ mb: 4 }}>
-            Shop by Category
-          </Typography>
+        {/* Decorative background elements */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: -150,
+            right: -150,
+            width: 400,
+            height: 400,
+            borderRadius: '50%',
+            background: `${CONTENT.hero.accentColor}15`,
+            filter: 'blur(60px)',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: -100,
+            left: -100,
+            width: 300,
+            height: 300,
+            borderRadius: '50%',
+            background: `${CONTENT.hero.secondaryColor}15`,
+            filter: 'blur(50px)',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            right: '5%',
+            width: 200,
+            height: 200,
+            borderRadius: '50%',
+            background: `${CONTENT.hero.accentColor}08`,
+            filter: 'blur(40px)',
+          }}
+        />
+      </Box>
+
+      {/* ===== TRUST SIGNALS ===== */}
+      <Container maxWidth="lg" sx={{ mt: -4, mb: 6 }}>
+        <Fade in timeout={800}>
+          <Paper
+            elevation={3}
+            sx={{
+              p: 3,
+              borderRadius: '20px',
+              backgroundColor: 'white',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+              zIndex: 999, 
+              position: 'relative',
+            }}
+          >
+            <Grid container spacing={2}>
+              {CONTENT.trustSignals.map((signal, index) => (
+                <Grid item xs={6} sm={3} key={index}>
+                  <Stack 
+                    direction="row" 
+                    spacing={1.5} 
+                    sx={{ 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      '&:hover': {
+                        '& .MuiBox-root': {
+                          transform: 'scale(1.1)',
+                        },
+                      },
+                    }}
+                  >
+                    <Box 
+                      sx={{ 
+                        color: signal.color || CONTENT.hero.accentColor,
+                        transition: 'transform 0.3s',
+                      }}
+                    >
+                      {signal.icon}
+                    </Box>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontWeight: 600, 
+                        fontSize: { xs: '0.7rem', sm: '0.9rem' },
+                        color: '#1a1a2e',
+                      }}
+                    >
+                      {signal.label}
+                    </Typography>
+                  </Stack>
+                </Grid>
+              ))}
+            </Grid>
+          </Paper>
+        </Fade>
+      </Container>
+
+      {/* ===== STATS SECTION ===== */}
+      <Box ref={statsRef} sx={{ py: 4, bgcolor: '#f8fafc' }}>
+        <Container maxWidth="lg">
+          <motion.div
+            initial="hidden"
+            animate={statsInView ? 'visible' : 'hidden'}
+            variants={staggerContainer}
+          >
+            <Grid container spacing={3}>
+              {CONTENT.stats.map((stat, index) => (
+                <Grid item xs={6} sm={3} key={index}>
+                  <motion.div
+                    variants={fadeInScale}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 3,
+                        textAlign: 'center',
+                        bgcolor: 'transparent',
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Box sx={{ color: stat.color, fontSize: 40, mb: 1 }}>
+                        {stat.icon}
+                      </Box>
+                      <Typography
+                        variant="h3"
+                        sx={{
+                          fontWeight: 800,
+                          color: '#1a1a2e',
+                          fontSize: { xs: '1.8rem', md: '2.5rem' },
+                        }}
+                      >
+                        {stat.value}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {stat.label}
+                      </Typography>
+                    </Paper>
+                  </motion.div>
+                </Grid>
+              ))}
+            </Grid>
+          </motion.div>
+        </Container>
+      </Box>
+
+      {/* ===== CATEGORIES SECTION ===== */}
+      <Container maxWidth="lg" sx={{ py: 8 }} ref={categoriesRef}>
+        <motion.div
+          initial="hidden"
+          animate={categoriesInView ? 'visible' : 'hidden'}
+          variants={fadeInUp}
+          transition={{ duration: 0.6 }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 5 }}>
+            <Typography
+              variant="h3"
+              component="h2"
+              sx={{
+                fontWeight: 800,
+                color: '#1a1a2e',
+                fontSize: { xs: '2rem', md: '2.8rem' },
+                mb: 1,
+              }}
+            >
+              {CONTENT.categories.title}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {CONTENT.categories.subtitle}
+            </Typography>
+          </Box>
+        </motion.div>
+
+        <motion.div
+          initial="hidden"
+          animate={categoriesInView ? 'visible' : 'hidden'}
+          variants={staggerContainer}
+        >
           <Grid container spacing={3}>
-            {categories.map((category, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
-                <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }}>
+            {CONTENT.categories.items.map((category, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <motion.div
+                  variants={fadeInUp}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.03 }}
+                >
                   <Card
                     sx={{
                       position: 'relative',
-                      height: 300,
+                      height: 250,
                       cursor: 'pointer',
                       overflow: 'hidden',
+                      borderRadius: '20px',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+                      transition: 'box-shadow 0.3s',
+                      '&:hover': {
+                        boxShadow: '0 8px 40px rgba(0,0,0,0.12)',
+                      },
                     }}
-                    onClick={() => navigate(`/products?category=${category.name}`)}
+                    onClick={() => navigate(`/products?category=${category.name.toLowerCase().replace(/ & /g, '-')}`)}
                   >
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 16,
+                        right: 16,
+                        backgroundColor: category.color,
+                        color: 'white',
+                        p: 1.5,
+                        borderRadius: '12px',
+                        zIndex: 2,
+                        boxShadow: `0 4px 12px ${category.color}44`,
+                      }}
+                    >
+                      {category.icon}
+                    </Box>
                     <CardMedia
                       component="img"
                       image={category.image}
                       alt={category.name}
                       sx={{
                         height: '100%',
-                        transition: 'transform 0.5s',
+                        transition: 'transform 0.6s',
                         '&:hover': { transform: 'scale(1.1)' },
                       }}
                     />
@@ -397,254 +714,493 @@ const HomePage = () => {
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        bgcolor: 'rgba(0,0,0,0.7)',
+                        background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)',
                         color: 'white',
-                        p: 2,
-                        textAlign: 'center',
+                        p: 3,
                       }}
                     >
-                      <Typography variant="h6">{category.name}</Typography>
-                      <Typography variant="body2">{category.items} items</Typography>
+                      <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                        {category.name}
+                      </Typography>
+                      <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                        {category.items} products available
+                      </Typography>
                     </Box>
                   </Card>
                 </motion.div>
               </Grid>
             ))}
           </Grid>
-        </Box>
+        </motion.div>
+      </Container>
 
-        {/* Featured Products Section */}
-        <Box sx={{ mb: 8 }}>
-          <Typography variant="h3" align="center" gutterBottom fontWeight="bold">
-            Featured Products
-          </Typography>
-          <Typography variant="subtitle1" align="center" color="text.secondary" sx={{ mb: 4 }}>
-            Discover our hand-picked selection of trending products
-          </Typography>
+      {/* ===== FEATURED PRODUCTS ===== */}
+      <Box sx={{ bgcolor: '#f8fafc', py: 8 }} ref={productsRef}>
+        <Container maxWidth="lg">
+          <motion.div
+            initial="hidden"
+            animate={productsInView ? 'visible' : 'hidden'}
+            variants={fadeInUp}
+            transition={{ duration: 0.6 }}
+          >
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: { xs: 'column', sm: 'row' }, 
+              justifyContent: 'space-between', 
+              alignItems: { xs: 'flex-start', sm: 'flex-end' }, 
+              mb: 4 
+            }}>
+              <Box>
+                <Typography
+                  variant="h4"
+                  component="h2"
+                  sx={{
+                    fontWeight: 800,
+                    color: '#1a1a2e',
+                    fontSize: { xs: '1.8rem', md: '2.2rem' },
+                  }}
+                >
+                  {CONTENT.featuredProducts.title}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  {CONTENT.featuredProducts.subtitle}
+                </Typography>
+              </Box>
+              <Button
+                variant="outlined"
+                onClick={() => navigate('/products')}
+                sx={{ 
+                  fontWeight: 'bold', 
+                  borderRadius: '50px', 
+                  mt: { xs: 2, sm: 0 },
+                  borderColor: CONTENT.hero.accentColor,
+                  color: CONTENT.hero.accentColor,
+                  px: 3,
+                  '&:hover': {
+                    borderColor: CONTENT.hero.accentColor,
+                    backgroundColor: `${CONTENT.hero.accentColor}11`,
+                  },
+                }}
+              >
+                {CONTENT.featuredProducts.viewAllText}
+              </Button>
+            </Box>
+          </motion.div>
 
           {loading ? (
-            <Box display="flex" justifyContent="center" py={4}>
-              <CircularProgress />
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+              <CircularProgress sx={{ color: CONTENT.hero.accentColor }} />
             </Box>
           ) : (
-            <Slider {...productSettings}>
-              {featuredProducts.map((product, index) => (
-                <Box key={product.id} sx={{ p: 1 }}>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Card
-                      sx={{
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        borderRadius: 3,
-                        overflow: 'hidden',
-                        transition: 'box-shadow 0.3s',
-                        '&:hover': { boxShadow: 10 },
-                      }}
+            <motion.div
+              initial="hidden"
+              animate={productsInView ? 'visible' : 'hidden'}
+              variants={staggerContainer}
+            >
+              <Grid container spacing={3}>
+                {featuredProducts.slice(0, CONTENT.featuredProducts.limit).map((product, index) => (
+                  <Grid item xs={12} sm={6} md={3} key={product.id}>
+                    <motion.div
+                      variants={fadeInUp}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                      whileHover={{ y: -8 }}
                     >
-                      <Box sx={{ position: 'relative' }}>
+                      <Card
+                        sx={{
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          borderRadius: '16px',
+                          transition: 'box-shadow 0.3s',
+                          '&:hover': {
+                            boxShadow: '0 12px 48px rgba(0,0,0,0.12)',
+                          },
+                          position: 'relative',
+                        }}
+                      >
+                        {product.isFeatured && (
+                          <Chip
+                            label={CONTENT.featuredProducts.badgeLabel}
+                            size="small"
+                            sx={{
+                              position: 'absolute',
+                              top: 12,
+                              left: 12,
+                              backgroundColor: CONTENT.hero.accentColor,
+                              color: 'white',
+                              fontWeight: 'bold',
+                              zIndex: 1,
+                              boxShadow: `0 4px 12px ${CONTENT.hero.accentColor}44`,
+                            }}
+                          />
+                        )}
+
                         <CardMedia
                           component="img"
                           height="250"
-                          image={
-                            product.imageUrls && product.imageUrls.length > 0
-                              ? product.imageUrls[0].startsWith('http')
-                                ? product.imageUrls[0]
-                                : `http://localhost:3001${product.imageUrls[0]}`
-                              : 'https://via.placeholder.com/300'
-                          }
+                          image={getProductImage(product.imageUrls)}
                           alt={product.name}
-                          sx={{ cursor: 'pointer', objectFit: 'cover' }}
+                          sx={{
+                            cursor: 'pointer',
+                            objectFit: 'cover',
+                            backgroundColor: '#f5f7fa',
+                          }}
                           onClick={() => navigate(`/product/${product.slug}`)}
                         />
-                        {product.isFeatured && (
-                          <Chip
-                            label="Featured"
-                            color="primary"
-                            size="small"
-                            sx={{ position: 'absolute', top: 10, left: 10 }}
-                          />
-                        )}
-                        {product.comparePrice > product.price && (
-                          <Chip
-                            label={`${Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)}% OFF`}
-                            color="error"
-                            size="small"
-                            sx={{ position: 'absolute', top: 10, right: 10 }}
-                          />
-                        )}
-                      </Box>
-                      <CardContent sx={{ flexGrow: 1 }}>
-                        <Typography gutterBottom variant="h6" noWrap>
-                          {product.name}
-                        </Typography>
-                        <Rating value={4.5} precision={0.5} size="small" readOnly />
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                          {product.description?.substring(0, 80)}...
-                        </Typography>
-                        <Box sx={{ mt: 2, display: 'flex', alignItems: 'baseline', gap: 1 }}>
-                          <Typography variant="h6" color="primary" fontWeight="bold">
-                            ${product.price}
+                        
+                        <CardContent sx={{ flexGrow: 1, pb: 1 }}>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mb: 0.5, fontSize: '0.7rem', textTransform: 'uppercase', fontWeight: 600 }}
+                          >
+                            {getCategoryName(product.category)}
                           </Typography>
-                          {product.comparePrice && (
-                            <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
-                              ${product.comparePrice}
+                          <Typography
+                            gutterBottom
+                            variant="h6"
+                            component="h3"
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: '1rem',
+                              cursor: 'pointer',
+                              '&:hover': { color: CONTENT.hero.accentColor },
+                              height: 48,
+                              overflow: 'hidden',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              transition: 'color 0.3s',
+                            }}
+                            onClick={() => navigate(`/product/${product.slug}`)}
+                          >
+                            {product.name}
+                          </Typography>
+                          
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Rating value={CONTENT.featuredProducts.rating} precision={0.5} size="small" readOnly />
+                            <Typography variant="caption" color="text.secondary">
+                              ({CONTENT.featuredProducts.rating})
                             </Typography>
-                          )}
-                        </Box>
-                      </CardContent>
-                      <CardActions sx={{ p: 2, pt: 0 }}>
-                        <Button
-                          variant="contained"
-                          size="small"
-                          onClick={() => addToCart(product.id)}
-                          disabled={product.stockQuantity === 0}
-                          fullWidth
-                          startIcon={<ShoppingCart />}
-                        >
-                          {product.stockQuantity > 0 ? 'Add to Cart' : 'Out of Stock'}
-                        </Button>
-                      </CardActions>
-                    </Card>
-                  </motion.div>
-                </Box>
-              ))}
-            </Slider>
-          )}
-        </Box>
-
-        {/* Promotional Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <Paper
-            sx={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              p: { xs: 3, md: 6 },
-              borderRadius: 4,
-              textAlign: 'center',
-              mb: 8,
-            }}
-          >
-            <Typography variant="h3" gutterBottom fontWeight="bold" sx={{ fontSize: { xs: '1.8rem', md: '3rem' } }}>
-              Subscribe to Our Newsletter
-            </Typography>
-            <Typography variant="h6" gutterBottom sx={{ mb: 3, fontSize: { xs: '1rem', md: '1.25rem' } }}>
-              Get exclusive offers and updates straight to your inbox
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2, maxWidth: 500, mx: 'auto', flexDirection: { xs: 'column', sm: 'row' } }}>
-              <TextField
-                fullWidth
-                placeholder="Enter your email"
-                variant="filled"
-                sx={{ bgcolor: 'white', borderRadius: 1, '& .MuiFilledInput-root': { bgcolor: 'white' } }}
-              />
-              <Button variant="contained" color="secondary" size="large">
-                Subscribe
-              </Button>
-            </Box>
-          </Paper>
-        </motion.div>
-
-        {/* Testimonials Section */}
-        <Box sx={{ mb: 8 }}>
-          <Typography variant="h3" align="center" gutterBottom fontWeight="bold">
-            What Our Customers Say
-          </Typography>
-          <Grid container spacing={3} sx={{ mt: 2 }}>
-            {testimonials.map((testimonial, index) => (
-              <Grid item xs={12} md={4} key={index}>
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <Card sx={{ p: 3, textAlign: 'center', height: '100%' }}>
-                    <Avatar src={testimonial.avatar} sx={{ width: 80, height: 80, mx: 'auto', mb: 2 }} />
-                    <Rating value={testimonial.rating} readOnly sx={{ mb: 2 }} />
-                    <Typography variant="body1" sx={{ mb: 2, fontStyle: 'italic' }}>
-                      "{testimonial.comment}"
-                    </Typography>
-                    <Typography variant="h6">{testimonial.name}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {testimonial.role}
-                    </Typography>
-                  </Card>
-                </motion.div>
+                          </Box>
+                          
+                          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+                            <Typography variant="h6" sx={{ fontWeight: 800, color: CONTENT.hero.accentColor }}>
+                              ${product.price}
+                            </Typography>
+                            {product.comparePrice && (
+                              <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
+                                ${product.comparePrice}
+                              </Typography>
+                            )}
+                          </Box>
+                        </CardContent>
+                        
+                        <Divider sx={{ mx: 2 }} />
+                        
+                        <CardActions sx={{ p: 2 }}>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => addToCart(product.id)}
+                            disabled={product.stockQuantity === 0}
+                            fullWidth
+                            sx={{
+                              fontWeight: 'bold',
+                              borderRadius: '50px',
+                              backgroundColor: CONTENT.hero.accentColor,
+                              '&:hover': { backgroundColor: '#e55a2a' },
+                              py: 1,
+                            }}
+                          >
+                            {product.stockQuantity > 0 
+                              ? CONTENT.featuredProducts.addToCartText 
+                              : CONTENT.featuredProducts.outOfStockText}
+                          </Button>
+                        </CardActions>
+                      </Card>
+                    </motion.div>
+                  </Grid>
+                ))}
               </Grid>
-            ))}
-          </Grid>
-        </Box>
-      </Container>
-
-      {/* Footer */}
-      <Box sx={{ bgcolor: '#1a1a1a', color: 'white', py: 6, mt: 8 }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={4}>
-              <Typography variant="h5" gutterBottom fontWeight="bold">
-                ShopHub
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 2 }}>
-                Your one-stop destination for amazing products at unbeatable prices.
-              </Typography>
-              <Stack direction="row" spacing={2}>
-                <IconButton sx={{ color: 'white' }}><Facebook /></IconButton>
-                <IconButton sx={{ color: 'white' }}><Twitter /></IconButton>
-                <IconButton sx={{ color: 'white' }}><Instagram /></IconButton>
-                <IconButton sx={{ color: 'white' }}><LinkedIn /></IconButton>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} sm={6} md={2}>
-              <Typography variant="h6" gutterBottom>Shop</Typography>
-              <Typography variant="body2" sx={{ mb: 1, cursor: 'pointer' }}>All Products</Typography>
-              <Typography variant="body2" sx={{ mb: 1, cursor: 'pointer' }}>New Arrivals</Typography>
-              <Typography variant="body2" sx={{ mb: 1, cursor: 'pointer' }}>Best Sellers</Typography>
-              <Typography variant="body2" sx={{ cursor: 'pointer' }}>Sale</Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} md={2}>
-              <Typography variant="h6" gutterBottom>Support</Typography>
-              <Typography variant="body2" sx={{ mb: 1, cursor: 'pointer' }}>FAQ</Typography>
-              <Typography variant="body2" sx={{ mb: 1, cursor: 'pointer' }}>Shipping Info</Typography>
-              <Typography variant="body2" sx={{ mb: 1, cursor: 'pointer' }}>Returns</Typography>
-              <Typography variant="body2" sx={{ cursor: 'pointer' }}>Contact Us</Typography>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography variant="h6" gutterBottom>Contact Info</Typography>
-              <Stack spacing={1}>
-                <Box display="flex" alignItems="center" gap={1}>
-                  <LocationOn fontSize="small" />
-                  <Typography variant="body2">123 Main Street, New York, NY 10001</Typography>
-                </Box>
-                <Box display="flex" alignItems="center" gap={1}>
-                  <Phone fontSize="small" />
-                  <Typography variant="body2">+1 (555) 123-4567</Typography>
-                </Box>
-                <Box display="flex" alignItems="center" gap={1}>
-                  <Email fontSize="small" />
-                  <Typography variant="body2">support@shophub.com</Typography>
-                </Box>
-              </Stack>
-            </Grid>
-          </Grid>
-          <Divider sx={{ my: 4, bgcolor: 'rgba(255,255,255,0.1)' }} />
-          <Typography variant="body2" align="center">
-            © 2024 ShopHub. All rights reserved.
-          </Typography>
+            </motion.div>
+          )}
         </Container>
       </Box>
 
-      <ScrollTop />
-    </>
+      {/* ===== WHY CHOOSE US ===== */}
+      <Box sx={{ py: 8 }} ref={featuresRef}>
+        <Container maxWidth="lg">
+          <motion.div
+            initial="hidden"
+            animate={featuresInView ? 'visible' : 'hidden'}
+            variants={fadeInUp}
+            transition={{ duration: 0.6 }}
+          >
+            <Box sx={{ textAlign: 'center', mb: 5 }}>
+              <Typography
+                variant="h3"
+                component="h2"
+                sx={{
+                  fontWeight: 800,
+                  color: '#1a1a2e',
+                  fontSize: { xs: '2rem', md: '2.8rem' },
+                  mb: 1,
+                }}
+              >
+                {CONTENT.whyChooseUs.title}
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                {CONTENT.whyChooseUs.subtitle}
+              </Typography>
+            </Box>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            animate={featuresInView ? 'visible' : 'hidden'}
+            variants={staggerContainer}
+          >
+            <Grid container spacing={4}>
+              {CONTENT.whyChooseUs.features.map((feature, index) => (
+                <Grid item xs={12} sm={6} md={3} key={index}>
+                  <motion.div
+                    variants={fadeInUp}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    whileHover={{ y: -8 }}
+                  >
+                    <Paper
+                      elevation={2}
+                      sx={{
+                        p: 4,
+                        textAlign: 'center',
+                        height: '100%',
+                        borderRadius: '20px',
+                        transition: 'box-shadow 0.3s',
+                        '&:hover': {
+                          boxShadow: '0 12px 48px rgba(0,0,0,0.08)',
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          backgroundColor: `${feature.color}15`,
+                          borderRadius: '50%',
+                          width: 80,
+                          height: 80,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          mx: 'auto',
+                          mb: 2,
+                          transition: 'transform 0.3s',
+                          '&:hover': {
+                            transform: 'scale(1.1)',
+                          },
+                        }}
+                      >
+                        <Box sx={{ color: feature.color, fontSize: 40 }}>
+                          {feature.icon}
+                        </Box>
+                      </Box>
+                      <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                        {feature.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {feature.description}
+                      </Typography>
+                    </Paper>
+                  </motion.div>
+                </Grid>
+              ))}
+            </Grid>
+          </motion.div>
+        </Container>
+      </Box>
+
+      {/* ===== TESTIMONIALS ===== */}
+      <Box sx={{ bgcolor: '#f8fafc', py: 8 }} ref={testimonialsRef}>
+        <Container maxWidth="lg">
+          <motion.div
+            initial="hidden"
+            animate={testimonialsInView ? 'visible' : 'hidden'}
+            variants={fadeInUp}
+            transition={{ duration: 0.6 }}
+          >
+            <Box sx={{ textAlign: 'center', mb: 5 }}>
+              <Typography
+                variant="h3"
+                component="h2"
+                sx={{
+                  fontWeight: 800,
+                  color: '#1a1a2e',
+                  fontSize: { xs: '2rem', md: '2.8rem' },
+                  mb: 1,
+                }}
+              >
+                {CONTENT.testimonials.title}
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                {CONTENT.testimonials.subtitle}
+              </Typography>
+            </Box>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            animate={testimonialsInView ? 'visible' : 'hidden'}
+            variants={staggerContainer}
+          >
+            <Grid container spacing={4}>
+              {CONTENT.testimonials.items.map((testimonial, index) => (
+                <Grid item xs={12} md={4} key={index}>
+                  <motion.div
+                    variants={fadeInUp}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                  >
+                    <Paper
+                      elevation={2}
+                      sx={{
+                        p: 3,
+                        borderRadius: '20px',
+                        height: '100%',
+                        textAlign: 'center',
+                        transition: 'box-shadow 0.3s, transform 0.3s',
+                        '&:hover': {
+                          boxShadow: '0 12px 48px rgba(0,0,0,0.08)',
+                          transform: 'translateY(-4px)',
+                        },
+                      }}
+                    >
+                      <Avatar
+                        src={testimonial.avatar}
+                        sx={{ width: 72, height: 72, mx: 'auto', mb: 2 }}
+                      />
+                      <Rating value={testimonial.rating} readOnly sx={{ mb: 2 }} />
+                      <Typography variant="body1" sx={{ mb: 2, fontStyle: 'italic', color: '#1a1a2e' }}>
+                        "{testimonial.comment}"
+                      </Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a2e' }}>
+                        {testimonial.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        {testimonial.location}
+                      </Typography>
+                      <Chip
+                        label={testimonial.badge}
+                        size="small"
+                        sx={{ 
+                          backgroundColor: `${CONTENT.hero.accentColor}11`, 
+                          color: CONTENT.hero.accentColor,
+                          fontWeight: 600,
+                          borderRadius: '12px',
+                        }}
+                      />
+                    </Paper>
+                  </motion.div>
+                </Grid>
+              ))}
+            </Grid>
+          </motion.div>
+        </Container>
+      </Box>
+
+      {/* ===== FINAL CTA ===== */}
+      <Box sx={{ 
+        background: CONTENT.cta.gradient, 
+        color: 'white', 
+        py: 8,
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        <Container maxWidth="md" sx={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <Chip
+              icon={<Bolt sx={{ color: CONTENT.hero.accentColor }} />}
+              label="Limited Time Offer"
+              sx={{
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                color: 'white',
+                mb: 3,
+                border: `1px solid ${CONTENT.hero.accentColor}`,
+                '& .MuiChip-icon': { color: CONTENT.hero.accentColor },
+              }}
+            />
+            <Typography 
+              variant="h3" 
+              component="h2" 
+              sx={{ 
+                fontWeight: 800, 
+                mb: 2,
+                fontSize: { xs: '2rem', md: '3rem' },
+              }}
+            >
+              {CONTENT.cta.title}
+            </Typography>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                mb: 4, 
+                opacity: 0.9, 
+                fontWeight: 400,
+                fontSize: { xs: '1rem', md: '1.2rem' },
+              }}
+            >
+              {CONTENT.cta.subtitle}
+            </Typography>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => navigate(CONTENT.cta.buttonLink)}
+              sx={{
+                backgroundColor: CONTENT.hero.accentColor,
+                color: 'white',
+                '&:hover': { backgroundColor: '#e55a2a' },
+                px: 6,
+                py: 2,
+                fontWeight: 'bold',
+                borderRadius: '50px',
+                fontSize: '1.1rem',
+                boxShadow: `0 8px 32px ${CONTENT.hero.accentColor}55`,
+              }}
+            >
+              {CONTENT.cta.buttonText}
+            </Button>
+          </motion.div>
+        </Container>
+        
+        {/* Decorative elements */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: -150,
+            right: -100,
+            width: 300,
+            height: 300,
+            borderRadius: '50%',
+            background: `${CONTENT.hero.accentColor}10`,
+            filter: 'blur(60px)',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: -150,
+            left: -100,
+            width: 300,
+            height: 300,
+            borderRadius: '50%',
+            background: `${CONTENT.hero.secondaryColor}10`,
+            filter: 'blur(60px)',
+          }}
+        />
+      </Box>
+    </Box>
   );
 };
 
