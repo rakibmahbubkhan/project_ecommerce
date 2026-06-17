@@ -770,6 +770,7 @@ const HomePage = () => {
                 variant="outlined"
                 onClick={() => navigate('/products')}
                 sx={{ 
+                  placeItems: 'center',
                   fontWeight: 'bold', 
                   borderRadius: '50px', 
                   mt: { xs: 2, sm: 0 },
