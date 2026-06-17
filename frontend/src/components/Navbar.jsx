@@ -172,7 +172,7 @@ const Navbar = () => {
             borderBottom: '1px solid rgba(255,255,255,0.05)',
           }}
         >
-          <Container maxWidth="lg">
+          <Container maxWidth="xl">
             <Toolbar sx={{ px: { xs: 0, sm: 2 }, minHeight: { xs: 64, sm: 72 } }}>
               {/* Mobile Menu Button */}
               <IconButton

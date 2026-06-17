@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -19,15 +19,12 @@ import {
   Avatar,
   IconButton,
   Fade,
-  useTheme,
 } from '@mui/material';
 import {
   LocalShipping,
   VerifiedUser,
-  CurrencyExchange,
   SupportAgent,
   ArrowForward,
-  PlayCircle,
   Bolt,
   Lightbulb,
   ElectricalServices,
@@ -41,27 +38,23 @@ import {
   EmojiEvents,
   Shield,
   Speed,
+  FormatQuote,
 } from '@mui/icons-material';
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
 // ============================================
-// UNIVERSAL ELECTRIC SHOP CONTENT CONFIGURATION
-// Edit this object to customize all content
+// CONTENT CONFIGURATION
 // ============================================
 const CONTENT = {
-  // Brand Information
   brand: {
     name: 'ElectroHub',
     tagline: 'Your Trusted Partner for Quality Electrical Solutions',
   },
-
-  // Hero Section
   hero: {
     title: 'Premium Electrical & Electronic Solutions',
-    subtitle: 'Discover our extensive range of high-quality electrical products, from smart home devices to industrial-grade equipment. Engineered for safety, efficiency, and reliability.',
+    subtitle: 'Discover our extensive range of high-quality electrical products, from smart home devices to industrial-grade equipment.',
     ctaText: 'Explore Products',
     ctaLink: '/products',
     image: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&h=400&fit=crop&crop=center',
@@ -69,74 +62,30 @@ const CONTENT = {
     accentColor: '#FF6B35',
     secondaryColor: '#00D4FF',
   },
-
-  // Stats Section
   stats: [
     { value: '10K+', label: 'Happy Customers', icon: <EmojiEvents />, color: '#FFD700' },
     { value: '500+', label: 'Products Available', icon: <ElectricalServices />, color: '#00D4FF' },
     { value: '98%', label: 'Satisfaction Rate', icon: <TrendingUp />, color: '#00E676' },
     { value: '24/7', label: 'Expert Support', icon: <SupportAgent />, color: '#FF6B35' },
   ],
-
-  // Trust Signals / Value Propositions
   trustSignals: [
     { icon: <LocalShipping />, label: 'Fast Delivery', color: '#FF6B35' },
     { icon: <VerifiedUser />, label: 'Certified Products', color: '#00D4FF' },
     { icon: <Security />, label: 'Safety Guaranteed', color: '#FFD700' },
     { icon: <SupportAgent />, label: '24/7 Support', color: '#00E676' },
   ],
-
-  // Categories Section
   categories: {
     title: 'Shop by Category',
     subtitle: 'Find exactly what you need for your electrical projects',
     items: [
-      {
-        name: 'Smart Home',
-        icon: <HomeRepairService />,
-        image: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=400&h=300&fit=crop&crop=center',
-        items: 245,
-        color: '#FF6B35',
-      },
-      {
-        name: 'Lighting',
-        icon: <Lightbulb />,
-        image: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=400&h=300&fit=crop&crop=center',
-        items: 189,
-        color: '#FFD700',
-      },
-      {
-        name: 'Wiring & Cables',
-        icon: <ElectricalServices />,
-        image: 'https://images.unsplash.com/photo-1562408590-e32931084e23?w=400&h=300&fit=crop&crop=center',
-        items: 156,
-        color: '#00D4FF',
-      },
-      {
-        name: 'Power Tools',
-        icon: <Build />,
-        image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=300&fit=crop&crop=center',
-        items: 198,
-        color: '#FF6B35',
-      },
-      {
-        name: 'Batteries & Power',
-        icon: <BatteryChargingFull />,
-        image: 'https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=400&h=300&fit=crop&crop=center',
-        items: 134,
-        color: '#00E676',
-      },
-      {
-        name: 'Electrical Panels',
-        icon: <Settings />,
-        image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=400&h=300&fit=crop&crop=center',
-        items: 89,
-        color: '#00D4FF',
-      },
+      { name: 'Smart Home', icon: <HomeRepairService />, image: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=400&h=300&fit=crop&crop=center', items: 245, color: '#FF6B35' },
+      { name: 'Lighting', icon: <Lightbulb />, image: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=400&h=300&fit=crop&crop=center', items: 189, color: '#FFD700' },
+      { name: 'Wiring & Cables', icon: <ElectricalServices />, image: 'https://images.unsplash.com/photo-1562408590-e32931084e23?w=400&h=300&fit=crop&crop=center', items: 156, color: '#00D4FF' },
+      { name: 'Power Tools', icon: <Build />, image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=300&fit=crop&crop=center', items: 198, color: '#FF6B35' },
+      { name: 'Batteries & Power', icon: <BatteryChargingFull />, image: 'https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=400&h=300&fit=crop&crop=center', items: 134, color: '#00E676' },
+      { name: 'Electrical Panels', icon: <Settings />, image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=400&h=300&fit=crop&crop=center', items: 89, color: '#00D4FF' },
     ],
   },
-
-  // Featured Products Section
   featuredProducts: {
     title: 'Featured Electrical Products',
     subtitle: 'Top-rated equipment and devices for every application',
@@ -149,75 +98,31 @@ const CONTENT = {
     outOfStockText: 'Out of Stock',
     rating: 4.8,
   },
-
-  // Why Choose Us Section
   whyChooseUs: {
     title: 'Why Choose ElectroHub?',
     subtitle: 'Your trusted source for electrical excellence',
     features: [
-      {
-        icon: <Shield />,
-        title: 'Certified Quality',
-        description: 'All products meet international safety and quality standards with full certification.',
-        color: '#00D4FF',
-      },
-      {
-        icon: <Speed />,
-        title: 'Fast & Reliable Delivery',
-        description: 'Quick shipping with real-time tracking and secure packaging for all orders.',
-        color: '#FF6B35',
-      },
-      {
-        icon: <SupportAgent />,
-        title: 'Expert Support',
-        description: 'Our technical team provides professional guidance for your electrical needs.',
-        color: '#FFD700',
-      },
-      {
-        icon: <Security />,
-        title: 'Warranty Guarantee',
-        description: 'Extended warranty coverage on all products for your peace of mind.',
-        color: '#00E676',
-      },
+      { icon: <Shield />, title: 'Certified Quality', description: 'All products meet international safety and quality standards.', color: '#00D4FF' },
+      { icon: <Speed />, title: 'Fast & Reliable Delivery', description: 'Quick shipping with real-time tracking.', color: '#FF6B35' },
+      { icon: <SupportAgent />, title: 'Expert Support', description: 'Professional guidance for your electrical needs.', color: '#FFD700' },
+      { icon: <Security />, title: 'Warranty Guarantee', description: 'Extended warranty coverage for peace of mind.', color: '#00E676' },
     ],
   },
-
-  // Testimonials Section
   testimonials: {
     title: 'What Our Customers Say',
     subtitle: 'Trusted by professionals and homeowners alike',
     items: [
-      {
-        name: 'John Smith',
-        location: 'Electrical Engineer',
-        rating: 5,
-        comment: 'Exceptional quality products and outstanding customer service. ElectroHub is my go-to for all electrical supplies.',
-        avatar: 'https://i.pravatar.cc/150?img=1',
-        badge: 'Verified Professional',
-      },
-      {
-        name: 'Sarah Johnson',
-        location: 'Homeowner',
-        rating: 5,
-        comment: 'I renovated my entire home with products from ElectroHub. The smart lighting system is incredible!',
-        avatar: 'https://i.pravatar.cc/150?img=2',
-        badge: 'Happy Customer',
-      },
-      {
-        name: 'Mike Chen',
-        location: 'Project Manager',
-        rating: 5,
-        comment: 'Reliable products, competitive pricing, and excellent technical support. Highly recommended for any project.',
-        avatar: 'https://i.pravatar.cc/150?img=3',
-        badge: 'Verified Professional',
-      },
+      { name: 'John Smith', location: 'Electrical Engineer', rating: 5, comment: 'Exceptional quality products and outstanding customer service.', avatar: 'https://i.pravatar.cc/150?img=1', badge: 'Verified Professional' },
+      { name: 'Sarah Johnson', location: 'Homeowner', rating: 5, comment: 'I renovated my entire home with products from ElectroHub.', avatar: 'https://i.pravatar.cc/150?img=2', badge: 'Happy Customer' },
+      { name: 'Mike Chen', location: 'Project Manager', rating: 5, comment: 'Reliable products and excellent technical support.', avatar: 'https://i.pravatar.cc/150?img=3', badge: 'Verified Professional' },
+      { name: 'Emily Davis', location: 'Interior Designer', rating: 5, comment: 'The smart lighting solutions transformed my clients\' spaces.', avatar: 'https://i.pravatar.cc/150?img=4', badge: 'Verified Professional' },
+      { name: 'Robert Wilson', location: 'Facility Manager', rating: 4, comment: 'Excellent products and reliable delivery.', avatar: 'https://i.pravatar.cc/150?img=5', badge: 'Happy Customer' },
+      { name: 'Lisa Thompson', location: 'DIY Enthusiast', rating: 5, comment: 'Top-notch wiring supplies. Great value for money.', avatar: 'https://i.pravatar.cc/150?img=6', badge: 'Happy Customer' },
     ],
   },
-
-  // Call to Action Section
   cta: {
     title: 'Ready to Power Your Project?',
-    subtitle: 'Browse our complete range of electrical products and get expert advice',
+    subtitle: 'Browse our complete range of electrical products',
     buttonText: 'Shop Now',
     buttonLink: '/products',
     gradient: 'linear-gradient(135deg, #0a1628 0%, #1a365d 50%, #2a4a7f 100%)',
@@ -227,10 +132,9 @@ const CONTENT = {
 const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
   const navigate = useNavigate();
-  const theme = useTheme();
 
-  // Refs for scroll animations
   const statsRef = useRef(null);
   const categoriesRef = useRef(null);
   const productsRef = useRef(null);
@@ -245,6 +149,16 @@ const HomePage = () => {
 
   useEffect(() => {
     fetchFeaturedProducts();
+  }, []);
+
+  // Auto-rotate testimonials
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTestimonial((prev) => 
+        prev === CONTENT.testimonials.items.length - 1 ? 0 : prev + 1
+      );
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchFeaturedProducts = async () => {
@@ -294,7 +208,22 @@ const HomePage = () => {
     return CONTENT.featuredProducts.defaultCategory;
   };
 
-  // Animation variants
+  const goToTestimonial = (index) => {
+    setActiveTestimonial(index);
+  };
+
+  const nextTestimonial = () => {
+    setActiveTestimonial((prev) => 
+      prev === CONTENT.testimonials.items.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevTestimonial = () => {
+    setActiveTestimonial((prev) => 
+      prev === 0 ? CONTENT.testimonials.items.length - 1 : prev - 1
+    );
+  };
+
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0 },
@@ -315,6 +244,8 @@ const HomePage = () => {
     },
   };
 
+  const currentTestimonial = CONTENT.testimonials.items[activeTestimonial];
+
   return (
     <Box sx={{ overflowX: 'hidden' }}>
       
@@ -329,7 +260,7 @@ const HomePage = () => {
           overflow: 'hidden',
         }}
       >
-        <Container maxWidth="lg">
+        <Container maxWidth="xl">
           <Grid container spacing={4} sx={{ alignItems: 'center' }}>
             <Grid item xs={12} md={6}>
               <motion.div
@@ -337,7 +268,6 @@ const HomePage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                {/* Icon Badge */}
                 <Chip
                   icon={<Bolt sx={{ color: CONTENT.hero.accentColor }} />}
                   label="Premium Electrical Solutions"
@@ -350,10 +280,8 @@ const HomePage = () => {
                     '& .MuiChip-icon': { color: CONTENT.hero.accentColor },
                   }}
                 />
-                
                 <Typography
                   variant="h1"
-                  component="h1"
                   sx={{
                     fontWeight: 800,
                     fontSize: { xs: '2.2rem', md: '3.5rem' },
@@ -416,27 +344,13 @@ const HomePage = () => {
                 </Box>
               </motion.div>
             </Grid>
-            
             <Grid item xs={12} md={6} sx={{ display: { xs: 'none', md: 'block' } }}>
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                <Box
-                  sx={{
-                    position: 'relative',
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      inset: -10,
-                      borderRadius: '24px',
-                      background: `linear-gradient(135deg, ${CONTENT.hero.accentColor}, ${CONTENT.hero.secondaryColor})`,
-                      opacity: 0.3,
-                      filter: 'blur(20px)',
-                    },
-                  }}
-                >
+                <Box sx={{ position: 'relative' }}>
                   <Box
                     component="img"
                     src={CONTENT.hero.image}
@@ -447,12 +361,9 @@ const HomePage = () => {
                       objectFit: 'cover',
                       borderRadius: '20px',
                       boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-                      position: 'relative',
-                      zIndex: 1,
                     }}
                   />
                 </Box>
-                {/* Floating badge */}
                 <motion.div
                   initial={{ opacity: 0, x: 30, y: -30 }}
                   animate={{ opacity: 1, x: 0, y: 0 }}
@@ -483,8 +394,6 @@ const HomePage = () => {
             </Grid>
           </Grid>
         </Container>
-
-        {/* Decorative background elements */}
         <Box
           sx={{
             position: 'absolute',
@@ -509,35 +418,23 @@ const HomePage = () => {
             filter: 'blur(50px)',
           }}
         />
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            right: '5%',
-            width: 200,
-            height: 200,
-            borderRadius: '50%',
-            background: `${CONTENT.hero.accentColor}08`,
-            filter: 'blur(40px)',
-          }}
-        />
       </Box>
 
       {/* ===== TRUST SIGNALS ===== */}
-      <Container maxWidth="lg" sx={{ mt: -4, mb: 6 }}>
+      <Container maxWidth="lg" sx={{ mt: -4, mb: 6,  position: 'relative', zIndex: 1 }}>
         <Fade in timeout={800}>
           <Paper
             elevation={3}
             sx={{
+              position: 'relative', placeContent: 'center',
               p: 3,
               borderRadius: '20px',
               backgroundColor: 'white',
               boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
-              zIndex: 999, 
-              position: 'relative',
             }}
           >
-            <Grid container spacing={2}>
+            <Grid container spacing={2} 
+                  sx={{ placeContent: 'center' }}>
               {CONTENT.trustSignals.map((signal, index) => (
                 <Grid item xs={6} sm={3} key={index}>
                   <Stack 
@@ -556,7 +453,7 @@ const HomePage = () => {
                     <Box 
                       sx={{ 
                         color: signal.color || CONTENT.hero.accentColor,
-                        transition: 'transform 0.3s',
+                        transition: 'transform 0.3s ease-in-out',
                       }}
                     >
                       {signal.icon}
@@ -580,14 +477,14 @@ const HomePage = () => {
       </Container>
 
       {/* ===== STATS SECTION ===== */}
-      <Box ref={statsRef} sx={{ py: 4, bgcolor: '#f8fafc' }}>
-        <Container maxWidth="lg">
+      <Box ref={statsRef} sx={{ py: 4, bgcolor: '#f8fafc', position: 'relative', zIndex: 1 }}>
+        <Container maxWidth="xl">
           <motion.div
             initial="hidden"
             animate={statsInView ? 'visible' : 'hidden'}
             variants={staggerContainer}
           >
-            <Grid container spacing={3}>
+            <Grid container spacing={3} sx={{ placeContent: 'center' }}>
               {CONTENT.stats.map((stat, index) => (
                 <Grid item xs={6} sm={3} key={index}>
                   <motion.div
@@ -597,6 +494,8 @@ const HomePage = () => {
                     <Paper
                       elevation={0}
                       sx={{
+                        position: 'relative',
+                        placeContent: 'center',
                         p: 3,
                         textAlign: 'center',
                         bgcolor: 'transparent',
@@ -629,7 +528,7 @@ const HomePage = () => {
       </Box>
 
       {/* ===== CATEGORIES SECTION ===== */}
-      <Container maxWidth="lg" sx={{ py: 8 }} ref={categoriesRef}>
+      <Container maxWidth="xl" sx={{ py: 8 }} ref={categoriesRef}>
         <motion.div
           initial="hidden"
           animate={categoriesInView ? 'visible' : 'hidden'}
@@ -639,7 +538,6 @@ const HomePage = () => {
           <Box sx={{ textAlign: 'center', mb: 5 }}>
             <Typography
               variant="h3"
-              component="h2"
               sx={{
                 fontWeight: 800,
                 color: '#1a1a2e',
@@ -735,8 +633,8 @@ const HomePage = () => {
       </Container>
 
       {/* ===== FEATURED PRODUCTS ===== */}
-      <Box sx={{ bgcolor: '#f8fafc', py: 8 }} ref={productsRef}>
-        <Container maxWidth="lg">
+      <Box sx={{ bgcolor: '#f8fafc', py: 8, justifyContent: 'center' }} ref={productsRef}>
+        <Container maxWidth="xl">
           <motion.div
             initial="hidden"
             animate={productsInView ? 'visible' : 'hidden'}
@@ -753,7 +651,6 @@ const HomePage = () => {
               <Box>
                 <Typography
                   variant="h4"
-                  component="h2"
                   sx={{
                     fontWeight: 800,
                     color: '#1a1a2e',
@@ -770,7 +667,6 @@ const HomePage = () => {
                 variant="outlined"
                 onClick={() => navigate('/products')}
                 sx={{ 
-                  placeItems: 'center',
                   fontWeight: 'bold', 
                   borderRadius: '50px', 
                   mt: { xs: 2, sm: 0 },
@@ -860,7 +756,6 @@ const HomePage = () => {
                           <Typography
                             gutterBottom
                             variant="h6"
-                            component="h3"
                             sx={{
                               fontWeight: 700,
                               fontSize: '1rem',
@@ -931,7 +826,7 @@ const HomePage = () => {
 
       {/* ===== WHY CHOOSE US ===== */}
       <Box sx={{ py: 8 }} ref={featuresRef}>
-        <Container maxWidth="lg">
+        <Container maxWidth="xl">
           <motion.div
             initial="hidden"
             animate={featuresInView ? 'visible' : 'hidden'}
@@ -941,7 +836,6 @@ const HomePage = () => {
             <Box sx={{ textAlign: 'center', mb: 5 }}>
               <Typography
                 variant="h3"
-                component="h2"
                 sx={{
                   fontWeight: 800,
                   color: '#1a1a2e',
@@ -1019,19 +913,18 @@ const HomePage = () => {
         </Container>
       </Box>
 
-      {/* ===== TESTIMONIALS ===== */}
+      {/* ===== TESTIMONIALS - SLIDING CARDS (Manual Carousel) ===== */}
       <Box sx={{ bgcolor: '#f8fafc', py: 8 }} ref={testimonialsRef}>
-        <Container maxWidth="lg">
+        <Container maxWidth="xl">
           <motion.div
             initial="hidden"
             animate={testimonialsInView ? 'visible' : 'hidden'}
             variants={fadeInUp}
             transition={{ duration: 0.6 }}
           >
-            <Box sx={{ textAlign: 'center', mb: 5 }}>
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
               <Typography
                 variant="h3"
-                component="h2"
                 sx={{
                   fontWeight: 800,
                   color: '#1a1a2e',
@@ -1047,62 +940,150 @@ const HomePage = () => {
             </Box>
           </motion.div>
 
-          <motion.div
-            initial="hidden"
-            animate={testimonialsInView ? 'visible' : 'hidden'}
-            variants={staggerContainer}
-          >
-            <Grid container spacing={4}>
+          <Box sx={{ position: 'relative', maxWidth: 700, mx: 'auto' }}>
+            {/* Testimonial Cards */}
+            <Box sx={{ overflow: 'hidden', position: 'relative', minHeight: 320 }}>
               {CONTENT.testimonials.items.map((testimonial, index) => (
-                <Grid item xs={12} md={4} key={index}>
-                  <motion.div
-                    variants={fadeInUp}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{
+                    opacity: activeTestimonial === index ? 1 : 0,
+                    x: activeTestimonial === index ? 0 : 50,
+                  }}
+                  transition={{ duration: 0.5 }}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    pointerEvents: activeTestimonial === index ? 'auto' : 'none',
+                  }}
+                >
+                  <Paper
+                    elevation={2}
+                    sx={{
+                      p: 4,
+                      borderRadius: '20px',
+                      textAlign: 'center',
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}
                   >
-                    <Paper
-                      elevation={2}
+                    <Box
                       sx={{
-                        p: 3,
-                        borderRadius: '20px',
-                        height: '100%',
-                        textAlign: 'center',
-                        transition: 'box-shadow 0.3s, transform 0.3s',
-                        '&:hover': {
-                          boxShadow: '0 12px 48px rgba(0,0,0,0.08)',
-                          transform: 'translateY(-4px)',
-                        },
+                        position: 'absolute',
+                        top: 10,
+                        right: 20,
+                        opacity: 0.08,
+                        color: CONTENT.hero.accentColor,
                       }}
                     >
-                      <Avatar
-                        src={testimonial.avatar}
-                        sx={{ width: 72, height: 72, mx: 'auto', mb: 2 }}
-                      />
-                      <Rating value={testimonial.rating} readOnly sx={{ mb: 2 }} />
-                      <Typography variant="body1" sx={{ mb: 2, fontStyle: 'italic', color: '#1a1a2e' }}>
-                        "{testimonial.comment}"
-                      </Typography>
-                      <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a2e' }}>
-                        {testimonial.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                        {testimonial.location}
-                      </Typography>
-                      <Chip
-                        label={testimonial.badge}
-                        size="small"
-                        sx={{ 
-                          backgroundColor: `${CONTENT.hero.accentColor}11`, 
-                          color: CONTENT.hero.accentColor,
-                          fontWeight: 600,
-                          borderRadius: '12px',
-                        }}
-                      />
-                    </Paper>
-                  </motion.div>
-                </Grid>
+                      <FormatQuote sx={{ fontSize: 60 }} />
+                    </Box>
+
+                    <Avatar
+                      src={testimonial.avatar}
+                      sx={{ 
+                        width: 80, 
+                        height: 80, 
+                        mx: 'auto', 
+                        mb: 2,
+                        border: `3px solid ${CONTENT.hero.accentColor}`,
+                        boxShadow: `0 4px 12px ${CONTENT.hero.accentColor}44`,
+                      }}
+                    />
+                    <Rating value={testimonial.rating} readOnly sx={{ mb: 2 }} />
+                    <Typography 
+                      variant="body1" 
+                      sx={{ 
+                        mb: 2, 
+                        fontStyle: 'italic', 
+                        color: '#1a1a2e',
+                        fontSize: { xs: '0.95rem', sm: '1.1rem' },
+                      }}
+                    >
+                      "{testimonial.comment}"
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a1a2e' }}>
+                      {testimonial.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                      {testimonial.location}
+                    </Typography>
+                    <Chip
+                      label={testimonial.badge}
+                      size="small"
+                      sx={{ 
+                        backgroundColor: `${CONTENT.hero.accentColor}11`, 
+                        color: CONTENT.hero.accentColor,
+                        fontWeight: 600,
+                        borderRadius: '12px',
+                      }}
+                    />
+                  </Paper>
+                </motion.div>
               ))}
-            </Grid>
-          </motion.div>
+            </Box>
+
+            {/* Navigation Dots */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 3 }}>
+              {CONTENT.testimonials.items.map((_, index) => (
+                <Box
+                  key={index}
+                  onClick={() => goToTestimonial(index)}
+                  sx={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    backgroundColor: activeTestimonial === index 
+                      ? CONTENT.hero.accentColor 
+                      : '#d1d5db',
+                    transition: 'all 0.3s',
+                    '&:hover': {
+                      transform: 'scale(1.2)',
+                      backgroundColor: activeTestimonial === index 
+                        ? CONTENT.hero.accentColor 
+                        : '#9ca3af',
+                    },
+                  }}
+                />
+              ))}
+            </Box>
+
+            {/* Navigation Arrows */}
+            <IconButton
+              onClick={prevTestimonial}
+              sx={{
+                position: 'absolute',
+                left: -20,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                backgroundColor: 'white',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                '&:hover': { backgroundColor: CONTENT.hero.accentColor, color: 'white' },
+                display: { xs: 'none', sm: 'flex' },
+              }}
+            >
+              <ArrowForward sx={{ transform: 'rotate(180deg)' }} />
+            </IconButton>
+            <IconButton
+              onClick={nextTestimonial}
+              sx={{
+                position: 'absolute',
+                right: -20,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                backgroundColor: 'white',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                '&:hover': { backgroundColor: CONTENT.hero.accentColor, color: 'white' },
+                display: { xs: 'none', sm: 'flex' },
+              }}
+            >
+              <ArrowForward />
+            </IconButton>
+          </Box>
         </Container>
       </Box>
 
@@ -1134,7 +1115,6 @@ const HomePage = () => {
             />
             <Typography 
               variant="h3" 
-              component="h2" 
               sx={{ 
                 fontWeight: 800, 
                 mb: 2,
@@ -1174,8 +1154,6 @@ const HomePage = () => {
             </Button>
           </motion.div>
         </Container>
-        
-        {/* Decorative elements */}
         <Box
           sx={{
             position: 'absolute',
